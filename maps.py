@@ -66,4 +66,4 @@ if country.casefold() in (count.casefold() for count in countrylist):
     image.show()
 
 else:
-   print("Country not found in list(Make sure to use full form of the name)"
+    print("Country not found in list(Make sure to use full form of the name)"
