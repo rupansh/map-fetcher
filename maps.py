@@ -49,6 +49,11 @@ countrylist = ["Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigu
 country = input("Enter the country ")
 
 if country.casefold() in (count.casefold() for count in countrylist):
+    # Map zoom
+    print("Enter zoom level! 14 if you live in vatican city, 10-7 if you live in small Europe Countries",
+          "6 for Average Europe country, 5 for average country, 4 for Large countries, 3 for Russia(or 2)")
+    zoom = int(input())
+    
     # locationIQ stuff
     geocoder = LocationIQ('insert yo token here')
     jsondata = geocoder.geocode(country)
@@ -58,7 +63,7 @@ if country.casefold() in (count.casefold() for count in countrylist):
     longitude = jsondata[0]['lon']
 
     # Googlemaps stuff
-    url = "http://maps.googleapis.com/maps/api/staticmap?center={},{}&zoom=4&size=800x800&sensor=false&markers=color:blue%7Clabel:count%7C{},{}".format(latitude, longitude, latitude, longitude)  # static google maps api
+    url = "http://maps.googleapis.com/maps/api/staticmap?center={},{}&zoom={}&size=800x800&sensor=false&markers=color:blue%7Clabel:count%7C{},{}".format(latitude, longitude, zoom, latitude, longitude)  # static google maps api
     buffer = BytesIO(urllib.request.urlopen(url).read())  # idk how BytesIO works so I won't explain
 
     # Convert map to Image
@@ -66,4 +71,4 @@ if country.casefold() in (count.casefold() for count in countrylist):
     image.show()
 
 else:
-    print("Country not found in list(Make sure to use full form of the name)"
+    print("Country not found in list(Make sure to use full form of the name)")
