@@ -9,5 +9,5 @@
 - **Can I use this?**  
   Sure. How about google maps tho?
 
-- **Why you make this**  
+- **Why did you make this**  
   My CS teacher told me try to make something like this. Thought its interesting so uploaded on git
