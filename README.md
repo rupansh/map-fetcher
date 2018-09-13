@@ -11,3 +11,6 @@
 
 - **Why did you make this**  
   My CS teacher told me try to make something like this. Thought its interesting so uploaded on git
+
+- **I am getting 403 forbidden error help!**
+  Run the script n times. Its just limitations of using static google API.
