@@ -53,7 +53,7 @@ if country.casefold() in (count.casefold() for count in countrylist):
     print("Enter zoom level! 14 if you live in vatican city, 10-7 if you live in small Europe Countries",
           "6 for Average Europe country, 5 for average country, 4 for Large countries, 3 for Russia(or 2)")
     zoom = int(input())
-    
+
     # locationIQ stuff
     geocoder = LocationIQ('insert yo token here')
     jsondata = geocoder.geocode(country)
@@ -63,10 +63,17 @@ if country.casefold() in (count.casefold() for count in countrylist):
     longitude = jsondata[0]['lon']
 
     # Googlemaps stuff
-    url = "http://maps.googleapis.com/maps/api/staticmap?center={},{}&zoom={}&size=800x800&sensor=false&markers=color:blue%7Clabel:count%7C{},{}".format(latitude, longitude, zoom, latitude, longitude)  # static google maps api
-    buffer = BytesIO(urllib.request.urlopen(url).read())  # idk how BytesIO works so I won't explain
+    while 1:
+        try:
+            url = "http://maps.googleapis.com/maps/api/staticmap?center={},{}&zoom={}&size=800x800&sensor=false&markers=color:blue%7Clabel:count%7C{},{}".format(
+                latitude, longitude, zoom, latitude, longitude)  # static google maps api
+            buffer = BytesIO(urllib.request.urlopen(url).read())  # convert map to ByteData
+        except urllib.error.HTTPError:  # 403 forbidden error handling
+            continue
+        break
 
-    # Convert map to Image
+
+    # Convert map's Bytedata to Image
     image = Image.open(buffer)
     image.show()
 
