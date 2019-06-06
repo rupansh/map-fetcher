@@ -1,5 +1,5 @@
 #
-# Copyright © 2018, "rupansh" <rupanshsekar@hotmail.com>
+# Copyright © 2019, "rupansh" <rupanshsekar@hotmail.com>
 #
 # This software is licensed under the terms of the GNU General Public
 # License version 3, as published by the Free Software Foundation, and
@@ -15,67 +15,47 @@
 
 from io import BytesIO
 from PIL import Image
-import urllib.request
-from locationiq.geocoder import LocationIQ
+import requests
+from locationiq.geocoder import LocationIQ, LocationIqNoPlacesFound
 
+# Constants
+KEY = 'ENTER LOCATIONIQ TOKEN HERE'
+SIZE = '800x800'
 
-countrylist = ["Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia",
-               "Australia", "Austria", "Azerbaijan", "The Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus",
-               "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil",
-               "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia", "Cameroon", "Canada",
-               "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo", "Costa Rica",
-               "Côte d’Ivoire", "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominica",
-               "Dominican Republic", "East Timor", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea",
-               "Estonia", "Ethiopia", "Fiji", "Finland", "France", "Gabon", "The Gambia", "Georgia", "Germany", "Ghana",
-               "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "Hungary",
-               "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Jamaica", "Japan",
-               "Jordan", "Kazakhstan", "Kenya", "Kiribati", "North Korea", "South Korea", "Kosovo", "Kuwait",
-               "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania",
-               "Luxembourg", "Macedonia", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta",
-               "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia, Federated States of", "Moldova",
-               "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar (Burma)", "Namibia", "Nauru",
-               "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "Norway", "Oman", "Pakistan",
-               "Palau", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar",
-               "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia",
-               "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia",
-               "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia",
-               "Solomon Islands", "Somalia", "South Africa", "Spain", "Sri Lanka", "Sudan", "Sudan, South", "Suriname",
-               "Swaziland", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Togo",
-               "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine",
-               "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu",
-               "Vatican City", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"
-               ]
+place = input("Enter the place ")
 
-country = input("Enter the country ")
-
-if country.casefold() in (count.casefold() for count in countrylist):
+if place:
     # Map zoom
-    print("Enter zoom level! 14 if you live in vatican city, 10-7 if you live in small Europe Countries",
-          "6 for Average Europe country, 5 for average country, 4 for Large countries, 3 for Russia(or 2)")
-    zoom = int(input())
+    zoom = int(input("Enter zoom level: "))
 
     # locationIQ stuff
-    geocoder = LocationIQ('insert yo token here')
-    jsondata = geocoder.geocode(country)
+    geocoder = LocationIQ(KEY)
+    try:
+        jsondata = geocoder.geocode(place)
+    except LocationIqNoPlacesFound:
+        print("Couldn't find the inputted location!")
+        exit(1)
 
     # use the lats and longs in json data dict
     latitude = jsondata[0]['lat']
     longitude = jsondata[0]['lon']
 
-    # Googlemaps stuff
-    while 1:
-        try:
-            url = "http://maps.googleapis.com/maps/api/staticmap?center={},{}&zoom={}&size=800x800&sensor=false&markers=color:blue%7Clabel:count%7C{},{}".format(
-                latitude, longitude, zoom, latitude, longitude)  # static google maps api
-            buffer = BytesIO(urllib.request.urlopen(url).read())  # convert map to ByteData
-        except urllib.error.HTTPError:  # 403 forbidden error handling
-            continue
-        break
+    static_map = f"https://maps.locationiq.com/v2/staticmap?key={KEY}&markers={latitude},{longitude}|icon:large-red-cutout;&zoom={zoom}&size={SIZE}"
 
+    # fetch map from static locationiq api
+    map = requests.get(static_map)
+
+    # Convert map to byte data
+    buf = BytesIO()
+    buf.name = "map.png"
+    for chunk in map.iter_content(chunk_size=128):
+        buf.write(chunk)
+
+    buf.seek(0)
 
     # Convert map's Bytedata to Image
-    image = Image.open(buffer)
+    image = Image.open(buf)
     image.show()
 
 else:
-    print("Country not found in list(Make sure to use full form of the name)")
+    print("Input a place lol!")
