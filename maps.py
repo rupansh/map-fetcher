@@ -33,7 +33,7 @@ if place:
     try:
         jsondata = geocoder.geocode(place)
     except LocationIqNoPlacesFound:
-        print("Couldn't find the inputted location!")
+        print("Couldn't find the entered location!")
         exit(1)
 
     # use the lats and longs in json data dict
